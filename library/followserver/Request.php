@@ -1,5 +1,5 @@
 <?php
-class Resbox_Request{
+class Followserver_Request{
     private static $arrtibute=array();
     /**
      * 

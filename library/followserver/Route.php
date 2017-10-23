@@ -1,12 +1,12 @@
 <?php
 
 /**
- * Resbox_Route
+ * Followserver_Route
  * @desc 自动定义路由
  * @author baijianmin
  * @ctime 2015-6-4
  */
-class Resbox_Route implements Ap_Route_Interface {
+class Followserver_Route implements Ap_Route_Interface {
     private static $pathInfo=array();
     /**
      * 设置路由

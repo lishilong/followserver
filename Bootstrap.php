@@ -9,7 +9,7 @@ class Bootstrap extends Ap_Bootstrap_Abstract {
 
     public function _initRoute(Ap_Dispatcher $dispatcher) {
         $router = Ap_Dispatcher::getInstance()->getRouter();
-        $route = new Resbox_Route();
+        $route = new Followserver_Route();
         $router->addRoute('Followserver', $route);
     }
 

@@ -5,7 +5,7 @@
  * @author baijianmin
  * @ctime 2015-6-4
  */
-abstract class Resbox_BaseAction extends Ap_Action_Abstract {
+abstract class Followserver_BaseAction extends Ap_Action_Abstract {
 
     protected $requestParams;
     
@@ -38,9 +38,9 @@ abstract class Resbox_BaseAction extends Ap_Action_Abstract {
 
             $this->preExecute();
             
-            $ctl=Resbox_Route::getPathInfo('ctl');
-            $action=Resbox_Route::getPathInfo('action');
-            $type=Resbox_Route::getPathInfo('type');
+            $ctl=Followserver_Route::getPathInfo('ctl');
+            $action=Followserver_Route::getPathInfo('action');
+            $type=Followserver_Route::getPathInfo('type');
             
             $pageSrvName = 'Service_Page_' . ucfirst($ctl) . '_' .ucfirst($action) . '_' . ucfirst($type);
 
@@ -53,7 +53,7 @@ abstract class Resbox_BaseAction extends Ap_Action_Abstract {
             Box_Log_Pb::setActionid($actionId);
             
             if(!class_exists($pageSrvName)){
-                return $this->error(Resbox_Errno::ERRNO_COMMON_ROUTE_ERR,"pageService [{$pageSrvName}] not exists");
+                return $this->error(Followserver_Errno::ERRNO_COMMON_ROUTE_ERR,"pageService [{$pageSrvName}] not exists");
             }
             
             $pageSrv = new $pageSrvName();
@@ -112,11 +112,11 @@ abstract class Resbox_BaseAction extends Ap_Action_Abstract {
         }
         Bd_Log::addNotice('post',json_encode($_POST));
         Bd_Log::addNotice('get',json_encode($_GET));
-        $ctl=Resbox_Route::getPathInfo('ctl');
-        $action=Resbox_Route::getPathInfo('action');
-        $type=Resbox_Route::getPathInfo('type');
+        $ctl=Followserver_Route::getPathInfo('ctl');
+        $action=Followserver_Route::getPathInfo('action');
+        $type=Followserver_Route::getPathInfo('type');
         
-        Mbd_Log_Txt::setApi(Resbox_Route::getApi());
+        Mbd_Log_Txt::setApi(Followserver_Route::getApi());
         
         if($this->checkHttpSign){
             $this->checkHttpSignParams($ctl, $action, $type);
@@ -151,7 +151,7 @@ abstract class Resbox_BaseAction extends Ap_Action_Abstract {
         $type = strtolower($type);
         
         if(empty($_GET['ak'])){
-            throw new Exception('GET.ak is required',Resbox_Errno::ERRNO_COMMON_PARAM_ERR);
+            throw new Exception('GET.ak is required',Followserver_Errno::ERRNO_COMMON_PARAM_ERR);
         }
         $ak = $_GET['ak'];
         $req_method = $_SERVER['REQUEST_METHOD'];
@@ -170,11 +170,11 @@ abstract class Resbox_BaseAction extends Ap_Action_Abstract {
         $reqired_fields = array( 'ak','time','sign');
         foreach ($reqired_fields as $f){
             if(empty($data[$f])){
-                throw new Exception($req_method.'.'.$f.' is required',Resbox_Errno::ERRNO_COMMON_PARAM_ERR);
+                throw new Exception($req_method.'.'.$f.' is required',Followserver_Errno::ERRNO_COMMON_PARAM_ERR);
             }
         }
         if($data['ak']!=$ak){
-            throw new Exception('two ak?',Resbox_Errno::ERRNO_COMMON_REQUEST_ERR);
+            throw new Exception('two ak?',Followserver_Errno::ERRNO_COMMON_REQUEST_ERR);
         }
         $isDebug = Bd_Conf::getIDC () == 'test' && !empty($_REQUEST['debug']);
         
@@ -183,10 +183,10 @@ abstract class Resbox_BaseAction extends Ap_Action_Abstract {
         if(!$isDebug){
             $_time = $data['time'];
             if(!is_numeric($_time) || $_time < time() - 150 || $_time >time() + 150){
-                throw new Exception('time is out of range',Resbox_Errno::ERRNO_COMMON_PARAM_ERR);
+                throw new Exception('time is out of range',Followserver_Errno::ERRNO_COMMON_PARAM_ERR);
             }
             if(strlen($_sign)!=32){
-                throw new Exception('sign length wrong',Resbox_Errno::ERRNO_COMMON_PARAM_ERR);
+                throw new Exception('sign length wrong',Followserver_Errno::ERRNO_COMMON_PARAM_ERR);
             }
         }
         
@@ -211,29 +211,29 @@ abstract class Resbox_BaseAction extends Ap_Action_Abstract {
         }
         
         if(empty($ak_conf)){
-            throw new Exception('ak conf is empty',Resbox_Errno::ERRNO_COMMON_CONFIG_ERR);
+            throw new Exception('ak conf is empty',Followserver_Errno::ERRNO_COMMON_CONFIG_ERR);
         }
         if (empty($ak_conf[$ak])){
-            throw new Exception('ak['.$ak.'] is not found',Resbox_Errno::ERRNO_COMMON_NO_PERMISSION);
+            throw new Exception('ak['.$ak.'] is not found',Followserver_Errno::ERRNO_COMMON_NO_PERMISSION);
         }
         
         $ak_info = $ak_conf[$ak];
         if(empty($ak_info['sk'])){
-            throw new Exception('sk is empty',Resbox_Errno::ERRNO_COMMON_CONFIG_ERR);
+            throw new Exception('sk is empty',Followserver_Errno::ERRNO_COMMON_CONFIG_ERR);
         }
         
         if(!$isDebug){
             $_server_sign = Box_Util_Secert::genHttpSign($data, $ak_info['sk']);
             if($_server_sign !=$_sign){
-                throw new Exception('sign not match',Resbox_Errno::ERRNO_COMMON_SIGN_ERR);
+                throw new Exception('sign not match',Followserver_Errno::ERRNO_COMMON_SIGN_ERR);
             }
         }
         
         if(!empty($ak_info['http_method']) && !in_array($req_method, $ak_info['http_method'])){
-            throw new Exception('http method is not allowed',Resbox_Errno::ERRNO_COMMON_REQUEST_ERR);
+            throw new Exception('http method is not allowed',Followserver_Errno::ERRNO_COMMON_REQUEST_ERR);
         }
         //业务可以读取这个属性
-        Resbox_Request::setAttribute('ak_info', $ak_info);
+        Followserver_Request::setAttribute('ak_info', $ak_info);
     }
 
     /**
