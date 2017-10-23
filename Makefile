@@ -10,7 +10,7 @@ include mydev
 APP_PATH="/home/work/orp/app/followserver"
 CONF_PATH="/home/work/orp/conf/app/followserver"
 WEBROOT_PATH="/home/work/orp/webroot/followserver"
-APP_SRC_FILE=actions Bootstrap.php controllers library models plugins crontab qpt script
+APP_SRC_FILE=actions Bootstrap.php controllers library models plugins
 
 # syntax conf
 SYNTAXPATH=/home/work/orp/app/followserver/ /home/work/orp/webroot/followserver
