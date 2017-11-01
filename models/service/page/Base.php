@@ -1,99 +1,157 @@
 <?php
-
 /**
- * pagesrv基类
- * @author baijianmin
- * @version $Id$
+ *
+ * @brief base function, some function is repack of utils 
+ * @name Service_Page_Base
+ * @author weiyanjiang@baidu.com
  */
+
 class Service_Page_Base {
-    protected $pbLog = array();
-    
-    protected $enableJSONP=false;
-    
-    private $_errmsg = '';
-    private $_errno = 0;
-    /**
-     * 
-     * @param int $errno
-     * @param string $errmsg
-     */
-    protected function errReturn($errno, $errmsg) {
-        $this->_errno = $errno;
-        $this->_errmsg = $errmsg;
-        return false;
+    protected $baiduid; 
+    protected $uk;
+    protected $appid;
+    public function __construct(){
     }
-    
+
     /**
-     * 
-     * @return number|int
-     */
-    public function getErrno() {
-        return $this->_errno;
+     *@param
+     *@return
+     */    
+    public function __set($property,$value){
+    	$this->$property = $value;
     }
-    
+
     /**
-     * 
-     * @return string
+     * @brief  请求logic的方法，返回logic的结果，如果未获取logic的结果抛出异常或者继续
+     * @param  body 请求的消息体
+     * @param  continueOnError 返回内容err_cdde !=0 时是否继续
+     * @return logic 返回的json
      */
-    public function getErrmsg() {
-        return $this->_errmsg;
+    protected function callLogicMethod($body, $continueOnError = true) {
+        $res = Restapi_Util::sendMsg($body);
+        if (isset($res['logic_result'])) {
+            $logic_rs = json_decode($res['logic_result'], true);
+            if ($logic_rs['err_code'] === 0) {
+                return $logic_rs;
+            }
+        }
+        if ($continueOnError === true) {
+            return false;
+        } else {
+            throw new Exception("odp.logic_result_error ");
+        }
     }
+           
     /**
-     * @return boolean
+     * @brief  批量获取uid对应的uk列表
+     * @param  number array bdUids
+     * @param  string returnType "map" or "array"
+     * @param  bool continueOnError
+     * @return int array or false
      */
-    public function isEnableJsonp(){
-        return $this->enableJSONP;
+    protected function getUksByBdUids($bdUids, $returnType = "map", $continueOnError = false) {
+        $validUids   = Restapi_Util::getValidUids($bdUids);
+        if (false == $validUids
+            || count($validUids) < 1) {
+            if ($continueOnError === false) {
+                throw new Exception('odp.param member param is error');
+            } else {
+                return false;
+            }
+        }
+
+        $validUidUks = Restapi_Util::getUksAndLogin($validUids, $appid);
+        if (false == $validiUidUks
+            || count($validUidUks) < 1) {
+            if ($continueOnError === false) {
+                throw new Exception('odp.param member param is error');
+            } else {
+                return false;
+            }
+        }
+
+        switch($returnType) {
+            case "map":
+                return $validUidUks;
+            case "array":
+                $validUks = array();
+                foreach ($validUidUks as $uid => $uk) {
+                    array_push($validUks, intval($uk));
+                }
+                return $validUks;
+            default:
+                throw new Exception("");
+        }
+        return $validUidUks;
     }
-    
+
     /**
-     * execute前执行
-     */
-    public function preExecute(){
-        
-    }
-    
-    /**
-     * 打印日志，在page层设置 pbLog字段 即可
      * @param
-     * @return bool
+     * @return
      */
-    public function teardown(){
-        //打印pb日志
-
-        if(!$this->pbLog){
-            return true;
+    public function checkInt($params, $name) {
+        $val = $params[$name];
+        Bd_Log::addNotice($name, $val);
+        if (!isset($val) || !is_numeric($val) || !is_int($val + 0) || $val < 0) { 
+            throw new Exception("odp.param param $name error");
         }
-        if($this->pbLog['uid']){
-            $userInfo['userid'] = $this->pbLog['uid'];
-            
-            Mbd_Log_Txt::setUid($this->pbLog['uid']);
-        }
-        if($this->pbLog['cuid']){
-            $deviceInfo['cuid'] = $this->pbLog['cuid'];
-            
-            Mbd_Log_Txt::setCuid($this->pbLog['cuid']);
-        }
-        if($this->pbLog['baiduid']){
-            $cookieUserId['baiduid'] =$this->pbLog['baiduid'];
-        }
-        if($this->_errno){
-            Mbd_Log_Pb::setErrno($this->_errno);
-        }
+        return intval($val);
+    }
 
-        $httpServiceInfo = array(
-            'user_agent' =>  $_SERVER['HTTP_USER_AGENT'],
-            'cookie'     =>  $_SERVER['HTTP_COOKIE'],
-            'request_url'=>  $_SERVER['REQUEST_URI'],
-            'http_method'=>  $_SERVER['REQUEST_METHOD'],
-        );
+    /**
+     * @param
+     * @param
+     * @return
+     */
+    public function checkIntWithDefault($params, $name, $default) {
+        $val = $params[$name];
+        Bd_Log::addNotice($name, $val);
+        if (!empty($val) && !is_numeric($val)) { 
+            throw new Exception("odp.param param $name error");
+        }
+        if (empty($val)) {
+            $val = $default;
+        }
+        return intval($val);
+    }
 
+    /**
+     * @param
+     * @return
+     */
+    public function checkNull($params, $name) {
+        Bd_Log::addNotice($name, $params[$name]);
+        if (null === $params[$name]) {
+            throw new Exception("odp.param param $name is null");
+        }
+    }
 
-        Mbd_Log_Pb::setPassportId($userInfo);
-        Mbd_Log_Pb::setDeviceId($deviceInfo);
-        Mbd_Log_Pb::setCookieUserid($cookieUserId);
-        Mbd_Log_Pb::setHttpServiceInfo($httpServiceInfo);
+    /**
+     * @param
+     * @return
+     */
+    public function checkString($params, $name) {
+        $val = $params[$name];
+        Bd_Log::addNotice($name, $val);
+        if (empty($val)) {
+            throw new Exception("odp.param param $name is empty");
+        }
+        return $val;
+    }
 
-        Mbd_Log_Pb::setActionData(json_encode($this->pbLog));
-        Mbd_Log_Txt::setNotice('udata', json_encode($this->pbLog));
+    /**
+     * @brief check string param ,if is empty set default value
+     * @param
+     * @param
+     * @param default default string
+     * @return
+     */
+    public function checkStringWithDefault($params, $name, $default) {
+        $val = $params[$name];
+        Bd_Log::addNotice($name, $val);
+        if (empty($val)) {
+            $val = $default;
+        }
+        return $val;
     }
 }

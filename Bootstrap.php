@@ -1,34 +1,46 @@
 <?php
-
 /**
- * Bootstrap
- * @desc 项目初始化
- * @ctime 2015-06-04
+ * @name Bootstrap
+ * @desc 所有在Bootstrap类中, 以_init开头的方法, 都会被Ap调用,
+ * 这些方法, 都接受一个参数:Ap_Dispatcher $dispatcher
+ * 调用的次序, 和申明的次序相同
+ * @author chenqian02@baidu.com
  */
-class Bootstrap extends Ap_Bootstrap_Abstract {
-
-    public function _initRoute(Ap_Dispatcher $dispatcher) {
-        $router = Ap_Dispatcher::getInstance()->getRouter();
-        $route = new Followserver_Route();
-        $router->addRoute('Followserver', $route);
+class Bootstrap extends Ap_Bootstrap_Abstract{
+    /**
+     *@param
+     *@return
+     */    
+	public function _initRoute(Ap_Dispatcher $dispatcher) {
+		//在这里注册自己的路由协议,默认使用static路由
+	}
+	
+    /**
+     *@param
+     *@return
+     */    
+	public function _initPlugin(Ap_Dispatcher $dispatcher) {
+        //注册saf插件
+        $objPlugin = new Saf_ApUserPlugin();
+        $dispatcher->registerPlugin($objPlugin);
     }
-
-    public function _initView(Ap_Dispatcher $dispatcher) {
-        $dispatcher->disableView();
-    }
-
-    public function _initPlugin(Ap_Dispatcher $dispatcher) {
-        $statLogPlugin = new Plugin_StatLog();
-        $dispatcher->registerPlugin($statLogPlugin);
-    }
-
-    public function _initNocache(Ap_Dispatcher $dispatcher) {
-        //禁止浏览器缓存
-        if(php_sapi_name()!='cli'){
-            header("Expires: Mon, 26 Jul 2000 00:00:00 GMT");
-            header("Cache-Control: no-store, must-revalidate");
-            header("Pragma: no-cache");
-        }
-    }
-
+	
+    /**
+     *@param
+     *@return
+     */    
+	public function _initView(Ap_Dispatcher $dispatcher){
+		//在这里注册自己的view控制器，例如smarty,firekylin
+		$dispatcher->disableView();//禁止ap自动渲染模板
+	}
+	
+    /**
+     *@param
+     *@return
+     */    
+    public function _initDefaultName(Ap_Dispatcher $dispatcher) {
+		//设置路由默认信息
+		//$dispatcher->setDefaultModule('Index');
+		$dispatcher->setDefaultController('Main');
+	}
 }
