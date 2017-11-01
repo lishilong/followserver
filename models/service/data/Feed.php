@@ -1,12 +1,10 @@
 <?php
-/*
- * Service_Data_Common_Feed
- *
- * 通用推荐 区别GR 目前手百8.1 widget使用
- * c++模块 nshead+json
- *
- * @author Liaoweida [Liaoweida@baidu.com]
- * @version 1.0
+/**
+ * @filename: models/service/data/Feed.php
+ * @desc 根据nid获取meta数据
+ * @author Weiyanjiang [weiyanjiang@baidu.com]
+ * @create 2017-11-01 17:14:48
+ * @last modify 2017-11-01 17:14:48
  */
 
 class Service_Data_Feed extends Service_Data_Base{
@@ -14,9 +12,9 @@ class Service_Data_Feed extends Service_Data_Base{
     public function execute(){}
     
     /**
-     * @brief 根据nid列表获取对应的meta数据 
-     * @param array $nids
-     * @return array
+     * @desc 根据nid列表获取对应的meta数据 
+     * @param 
+     * @return 
      */
     public function getFeedMetaByNids($nids){
         $metaItems = array();

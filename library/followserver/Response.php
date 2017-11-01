@@ -1,9 +1,12 @@
 <?php
 /**
- * @name Followserver_Response
+ * @filename: library/followserver/Response.php
  * @desc 封装restapi response
- * @author weiyanjiang@baidu.com
+ * @author Weiyanjiang [weiyanjiang@baidu.com]
+ * @create 2017-11-01 17:14:05
+ * @last modify 2017-11-01 17:14:05
  */
+
 class Followserver_Response {
     
     private static $arrFieldsNeedDealBeforeSend = array (    // 由于nodejs不能处理64位的整形数据，故在响应前，先将他们做强制类型转换

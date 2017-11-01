@@ -1,16 +1,18 @@
 <?php
 /**
- * Created by PhpStorm.
- * User: yanmeng01
- * Date: 17/6/7
- * Time: 下午2:43
+ * @filename: models/service/page/Follow.php
+ * @desc
+ * @author Weiyanjiang [weiyanjiang@baidu.com]
+ * @create 2017-11-01 17:20:05
+ * @last modify 2017-11-01 17:20:05
  */
+
 class Service_Page_Follow extends Service_Page_Base{
 
     /**
-     * @brief 入口函数
-     * @param array
-     * @return array
+     * @desc
+     * @param 
+     * @return 
      */
     public function execute($request){
         //$requestParams = $this->getRequest();

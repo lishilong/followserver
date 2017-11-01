@@ -1,10 +1,12 @@
 <?php
 /**
- * @name  
- * @desc Ucp 自定义菜单相关
- * @date 2017-07-11 15:04:27
- * @author weiyanjiang@baidu.com
+ * @filename: actions/follow/Follow.php
+ * @desc
+ * @author Weiyanjiang [weiyanjiang@baidu.com]
+ * @create 2017-11-01 17:12:16
+ * @last modify 2017-11-01 17:12:16
  */
+
 class Action_Follow extends Ap_Action_Abstract {
 
 	public function execute() {

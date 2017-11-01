@@ -4,7 +4,7 @@
  * @desc 所有在Bootstrap类中, 以_init开头的方法, 都会被Ap调用,
  * 这些方法, 都接受一个参数:Ap_Dispatcher $dispatcher
  * 调用的次序, 和申明的次序相同
- * @author chenqian02@baidu.com
+ * @author weiyanjiang@baidu.com
  */
 class Bootstrap extends Ap_Bootstrap_Abstract{
     /**

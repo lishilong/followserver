@@ -1,9 +1,12 @@
 <?php
 /**
- * @name Main_Controller
+ * @filename: controllers/Main.php
  * @desc 主控制器,也是默认控制器
- * @author chenqian02@baidu.com
+ * @author Weiyanjiang [weiyanjiang@baidu.com]
+ * @create 2017-11-01 17:12:35
+ * @last modify 2017-11-01 17:12:35
  */
+
 class Controller_Main extends Ap_Controller_Abstract {
 	public $actions = array(
 		'follow' => 'actions/follow/Follow.php',

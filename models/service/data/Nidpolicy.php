@@ -1,10 +1,10 @@
 <?php
-/*
- * Service_Data_Nidpolicy
- * 去关注频道策略server取nid列表
- *
- * @author weiyanjiang [weiyanjiang@baidu.com]
- * @version 1.0
+/**
+ * @filename: models/service/data/Nidpolicy.php
+ * @desc 去关注频道策略server取nid列表
+ * @author Weiyanjiang [weiyanjiang@baidu.com]
+ * @create 2017-11-01 17:19:23
+ * @last modify 2017-11-01 17:19:23
  */
 
 class Service_Data_Nidpolicy extends Service_Data_Base{
