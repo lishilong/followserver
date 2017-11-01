@@ -8,8 +8,8 @@
 class Service_Page_Follow extends Service_Page_Base{
 
     /**
-     * 入口函数
-     *
+     * @brief 入口函数
+     * @param array
      * @return array
      */
     public function execute($request){
