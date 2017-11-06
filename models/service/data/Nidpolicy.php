@@ -17,7 +17,10 @@ class Service_Data_Nidpolicy extends Service_Data_Base{
      * @return array
      */
     public function getNids(){
-        $nids = array(122550092327743297);
+        $nids = array(
+                "678741571145693057",
+                "17991983688588921690"
+                );
         return $nids;
     }
 

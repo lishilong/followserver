@@ -23,39 +23,40 @@ class Service_Page_Follow extends Service_Page_Base{
                 'timestamp'=>'0',
                 'data' => array()
                 );
-        
+
         $time = time();
 
         // meta获取
         $nids = Service_Data_Nidpolicy::getNids();
         $metaItems = Service_Data_Feed::getFeedMetaByNids($nids);
-        var_dump("weiyanjiang_meta_items",$metaItems);
-/*
-        $data  = array(
-            array('nid'=>'news_122550092327743297', 'field'=> 'meta'),
-            //array('nid'=>'news_322895089289744363', 'field'=> 'meta'),
-            //array('nid'=>'news_18306228028894318076', 'field'=> 'meta'),
-        );
-        $ret = Box_Feedmeta_Base::mget($data);
-        var_dump("weiyanjiang_ret:",$ret);
-
+        //var_dump("weiyanjiang_meta_items",$metaItems);
+        //var_dump("weiyanjiang_nids",$nids);
+        //var_dump("weiyanjiang_request",json_encode($request));
+        // 获取点赞数
+        $uid = 621388556;
+        $likeHandler = new Service_Data_Like();
+        $ret = $likeHandler->getLikeData($nids, $uid, 'feed');
+        
+        var_dump("weiyanjiang_likeData",json_encode($ret));
+        /*
+       
         //将cuid设置到cookie中
         if(!$_COOKIE['BAIDUCUID']){
-            if($adaptParams['device_ua'] == 'android'){
-                setcookie('BAIDUCUID',$requestParams['_UID'],$time+86400*30*1000,'/','.baidu.com');
-            }else{
-                setcookie('BAIDUCUID',Utils_Common::b64_encode($requestParams['uid']),$time+86400*30*1000,'/','.baidu.com');
-            }
+        if($adaptParams['device_ua'] == 'android'){
+        setcookie('BAIDUCUID',$requestParams['_UID'],$time+86400*30*1000,'/','.baidu.com');
+        }else{
+        setcookie('BAIDUCUID',Utils_Common::b64_encode($requestParams['uid']),$time+86400*30*1000,'/','.baidu.com');
+        }
         }
 
         $data = isset($requestParams['data']) ? $requestParams['data'] : array();
         if(!empty($data)) {
-            $requestParams['data_decode'] = json_decode(urldecode($data), true);
-            $this->setRequest($requestParams);
+        $requestParams['data_decode'] = json_decode(urldecode($data), true);
+        $this->setRequest($requestParams);
         }
 
         //        $this->setLogInfo($logInfo);
-  */
+         */
         echo json_encode($arrResult);
     }
 
