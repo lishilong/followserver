@@ -28,6 +28,11 @@ class Utils_Trace{
     // 模块
     const MODULE = 'searchbox';
 
+    /**
+     * @desc
+     * @param 
+     * @return 
+     */
     static public function setTrace($module = '', $key = ''){
         if(self::getSwitch() == 0){
             return false;
@@ -37,6 +42,11 @@ class Utils_Trace{
         return $result1 && $result2;
     }
 
+    /**
+     * @desc
+     * @param 
+     * @return 
+     */
     static public function setUserVars($data, $module = '', $key = '', $isArray = 1){
         if(self::getSwitch() == 0){
             return false;
@@ -45,6 +55,11 @@ class Utils_Trace{
         return self::_setTraceData($data, $module, $key, $isArray);
     }
 
+    /**
+     * @desc
+     * @param 
+     * @return 
+     */
     static public function _setTraceData( $data, $module, $key, $isArray = 1){
         if( empty($data) ){
             return false;
@@ -60,6 +75,11 @@ class Utils_Trace{
         return true;
     }
 
+    /**
+     * @desc
+     * @param 
+     * @return 
+     */
     static public function getTrace(){
         if(self::getSwitch() == 0){
             return array();
@@ -68,6 +88,11 @@ class Utils_Trace{
         return self::$traceContainer;
     }
 
+    /**
+     * @desc
+     * @param 
+     * @return 
+     */
     static public function setBaseTrace(){
         if(self::getSwitch() == 0){
             return false;
@@ -77,6 +102,11 @@ class Utils_Trace{
         return true;
     }
 
+    /**
+     * @desc
+     * @param 
+     * @return 
+     */
     static public function getSwitch(){
         if( self::$isCall == 1){
             return self::$switch;
