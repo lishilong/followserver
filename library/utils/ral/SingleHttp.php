@@ -35,10 +35,20 @@ class Utils_Ral_SingleHttp{
     private $header;
     private $extra;
 
+    /**
+     * @desc
+     * @param 
+     * @return 
+     */
     public function __construct($resource){
         $this->setResource($resource);
     }
 
+    /**
+     * @desc
+     * @param 
+     * @return 
+     */
     public function setResource($resource){
         $this->service = !empty($resource['service']) ? $resource['service'] : '';
         $this->method = !empty($resource['method']) ? $resource['method'] : 'get';
@@ -47,6 +57,11 @@ class Utils_Ral_SingleHttp{
         $this->extra = !empty($resource['extra']) ? $resource['extra'] : 1;
     }
 
+    /**
+     * @desc
+     * @param 
+     * @return 
+     */
     public function request($logid=null){
         if(isset($logid)){
             ral_set_logid($logid);
@@ -67,17 +82,29 @@ class Utils_Ral_SingleHttp{
         return $this->ret;
     }
 
-    //出错消息
+    /**
+     * @desc 出错消息
+     * @param 
+     * @return 
+     */
     public function getError(){
         return ral_get_error();
     }
 
-    //错误号
+    /**
+     * @desc 错误号
+     * @param 
+     * @return 
+     */
     public function getErrno(){
         return ral_get_errno();
     }
 
-    //请求后返回的http协议状态码
+    /**
+     * @desc 请求后返回的http协议状态
+     * @param 
+     * @return 
+     */
     public function getProtocolCode(){
         return ral_get_protocol_code();
     }
