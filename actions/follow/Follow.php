@@ -22,7 +22,7 @@ class Action_Follow extends Ap_Action_Abstract {
 		$arrRequest = Saf_SmartMain::getCgi();
 		//$arrRequest = Bd_String::iconv_recursive($arrRequest, 'gbk', 'utf8');
 		//3. call PageService
-		$objServicePagePa = new Service_Page_Follow();
+		$objServicePagePa = new Service_Page_Common_Follow();
 		$objServicePagePa->execute($arrRequest);
 
 		//4. chage data to out format

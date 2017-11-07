@@ -2,11 +2,11 @@
 /**
  *
  * @brief base function, some function is repack of utils 
- * @name Service_Page_Base
+ * @name Service_Page_Common_Base
  * @author weiyanjiang@baidu.com
  */
 
-class Service_Page_Base {
+class Service_Page_Common_Base {
     protected $baiduid; 
     protected $uk;
     protected $appid;

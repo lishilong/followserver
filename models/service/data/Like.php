@@ -130,7 +130,6 @@ class Service_Data_Like extends Service_Data_Base
                     ),
                 );
         $ralService = new Utils_Ral_SingleHttp($ralParams);
-        var_dump("ralService,",$ralService);
         if (false === ($ret = $ralService->request())) {
             Box_Log_Txt::setWarning('45013011', 'get like list request fail, resource:'. json_encode($ralParams));
             return false;
