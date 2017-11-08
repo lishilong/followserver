@@ -11,15 +11,6 @@ class Bootstrap extends Ap_Bootstrap_Abstract{
     /**
      * @param Ap_Dispatcher $dispatcher
      */
-    public function _initLoader(Ap_Dispatcher $dispatcher) {
-        // 加载library
-        $library = Ap_Loader::getInstance()->getLibraryPath();
-        Ap_Loader::import($library . "/distribute/Error.php");
-    }
-
-    /**
-     * @param Ap_Dispatcher $dispatcher
-     */
     public function _initRoute(Ap_Dispatcher $dispatcher) {
         //在这里注册自己的路由协议,默认使用static路由
         $router = $dispatcher->getRouter();
