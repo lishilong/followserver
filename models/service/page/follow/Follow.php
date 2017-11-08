@@ -7,22 +7,12 @@
  * @last modify 2017-11-01 17:20:05
  */
 
-class Service_Page_Common_Follow extends Service_Page_Common_Base{
+class Service_Page_Follow_Follow extends Service_Page_Follow_Base {
 
     /**
-     * @desc
-     * @param 
-     * @return 
+     * @return array
      */
-    public function execute($request){
-        //$requestParams = $this->getRequest();
-        //$adaptParams = $this->getAdaption();
-        //$logInfo = $this->getLogInfo();
-        $arrResult = array(
-                'errno' => '-1',
-                'timestamp'=>'0',
-                'data' => array()
-                );
+    protected function run() {
 
         $time = time();
 
@@ -34,13 +24,13 @@ class Service_Page_Common_Follow extends Service_Page_Common_Base{
         $uid = 621388556;
         $likeHandler = new Service_Data_Like();
         $ret = $likeHandler->getLikeData($nids, $uid, 'feed');
-        
+
         var_dump("weiyanjiang_likeData",json_encode($ret));
 
         $threadIds = array();
         $commentHandler = new Service_Data_Comment();
         foreach ($metaItems as $meta) {
-        //    var_dump("weiyangjiang________________meta",$meta['meta']);
+            //    var_dump("weiyangjiang________________meta",$meta['meta']);
             $metaInfo = json_decode($meta['meta'], true);
             if (isset($metaInfo['thread_id']) && 0 < strlen($metaInfo['thread_id'])) {
                 $threadIds[] = $metaInfo['thread_id'];
@@ -49,7 +39,8 @@ class Service_Page_Common_Follow extends Service_Page_Common_Base{
 
         $ret = $commentHandler->commentFactory->mGetCountByThreadId($threadIds);
         var_dump("weiyanjiang_ret",$ret);
-        
-        echo json_encode($arrResult);
+
+        $data = array();
+        return $data;
     }
 }

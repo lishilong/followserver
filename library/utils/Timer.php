@@ -12,7 +12,7 @@ class Utils_Timer {
 
     private static $_timer_group = null;
     private static $_mapping = array(
-        'db' => 0,
+        'total' => 0,
     );
 
     /**

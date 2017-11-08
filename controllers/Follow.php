@@ -7,9 +7,8 @@
  * @last modify 2017-11-01 17:12:35
  */
 
-class Controller_Main extends Ap_Controller_Abstract {
+class Controller_Follow extends Ap_Controller_Abstract {
 	public $actions = array(
 		'follow' => 'actions/follow/Follow.php',
-		'test' => 'actions/Test.php',
 	);
 }
