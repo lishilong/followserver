@@ -27,6 +27,21 @@ class Service_Page_Follow_Follow extends Service_Page_Follow_Base {
         $tplHandler = new Service_Data_Items();
         $uid = 621388556;
         $ret = $tplHandler->getItemsFromNids($nids, true, $uid);
+
+        $rnData = array();
+        $naData = array();
+
+        $rnTemplateHandler = new Service_Data_Rntemplate($this->requests);
+        $naTemplateHandler = new Service_Data_Natemplate($this->requests);
+        foreach ($ret as $item) {
+            ($rnItem = $rnTemplateHandler->buildTemplate($item)) != false && $rnData[] = $rnItem;
+            ($naItem = $naTemplateHandler->buildTemplate($item)) != false && $naData[] = $naItem;
+        }
+
+        return array(
+            'rn' => $rnData,
+            'na' => $naData,
+        );
                 
        // echo json_encode($arrResult);
     }

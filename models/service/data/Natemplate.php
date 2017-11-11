@@ -78,7 +78,7 @@ class Service_Data_Natemplate extends Service_Data_Base
         $this->_requests = $requests;
         $this->_supportWebp = $this->_requests['webp'] == 'webp'; //端上是否支持展现webp图像
         $this->_bdVersion = isset($this->_requests['bd_version']) ? $this->_requests['bd_version'] : '0';
-        $this->_tnToken = Bd_Conf::getAppConf('comment/tn_token');
+        $this->_tnToken = Bd_Conf::getAppConf('common/tn_token');
     }
 
 
@@ -91,8 +91,8 @@ class Service_Data_Natemplate extends Service_Data_Base
 
         $this->_item = $item;
         $this->_meta = &$this->_item['meta'];
-        $this->_like = &$this->_item['like_info'];
-        $this->_comment = &$this->_item['comment_info'];
+        $this->_like = &$this->_item['like'];
+        $this->_comment = &$this->_item['comment'];
 
         $sucFlag = false;
         if ($this->_item['type'] == 1 && $this->_buildNormalTemplate()) {
@@ -202,7 +202,7 @@ class Service_Data_Natemplate extends Service_Data_Base
             //图文模板
             $this->_setBigImage();
             $this->_setImageItems();
-            if ($this->_buildNewsTpl()) {
+            if (!$this->_buildNewsTpl()) {
                 return false;
             }
         } elseif ($this->_meta['type'] == 'videolive') {
@@ -216,10 +216,8 @@ class Service_Data_Natemplate extends Service_Data_Base
             Bd_Log::warning('not support type [' . $this->_meta['type'] . ']');
             return false;
         }
-
-        $authenticationDesc = $this->_meta['displaytype_exinfo']['authentication_type'] ? $this->_meta['displaytype_exinfo']['authentication_type'] : '';
+        
         $vType = $this->_meta['displaytype_exinfo']['is_authenticated'] ? strval($this->_meta['displaytype_exinfo']['is_authenticated']) : '';
-        $uk = $this->_meta['displaytype_exinfo']['uk'] ? strval($this->_meta['displaytype_exinfo']['uk']) : '';
 
         $this->_followType = 'celebrity';
         $this->_likeType = 'star';
@@ -232,13 +230,11 @@ class Service_Data_Natemplate extends Service_Data_Base
                 $vType = '';
                 $this->_followType = 'ugc';
                 $this->_likeType = 'ugcsimple';
-                $authenticationDesc = '手百百度网友';
                 break;
             case 'ugc_baijiahao':
                 $vType = '';
                 $this->_followType = 'media';
                 $this->_likeType = 'ugcbjh';
-                $authenticationDesc = '百家号作者';
                 break;
             default:
                 break;
@@ -248,13 +244,14 @@ class Service_Data_Natemplate extends Service_Data_Base
         $slog['page'] = $this->_followType . '_homepage';//页面标识
 
         //因为没有对齐主线100 新增一部分逻辑 todo why?
+        $uk = $this->_meta['displaytype_exinfo']['uk'] ? strval($this->_meta['displaytype_exinfo']['uk']) : '';
         if (isset($this->_meta['displaytype_exinfo']) && in_array($this->_sourceFrom, array('ugc', 'ugc_baijiahao'))) {
             $uk = Mbd_Account_Profile::getUkByUid($this->_meta['displaytype_exinfo']);
             $this->_meta['displaytype_exinfo']['uk'] = $uk;
         }
         $this->_uk = $uk;
 
-        if (!$this->_setUserData($authenticationDesc, $vType, $slog)) {
+        if (!$this->_setUserData($vType, $slog)) {
             return false;
         }
 
@@ -275,15 +272,15 @@ class Service_Data_Natemplate extends Service_Data_Base
         $this->_tpl['data']['bar'] = array(
             'like' => array(
                 'count' => $this->_like['count'] ? $this->_like['count'] : '',
-                'type'  => $this->_like['status'] ? $this->_like['status'] : '',
+                'type'  => $this->_like['type'] ? $this->_like['type'] : '',
                 'ext'   => json_encode($this->_likeExt),
             ),
             'comment' => array(
-                'count' => $this->_comment['comment_num'] ? $this->_comment['comment_num'] : '',
+                'count' => $this->_comment['count'] ? $this->_comment['count'] : '',
                 'cmd'   => $this->_commentCmd,
             ),
             'share'   => array(
-                'image' => !empty($this->_meta['imageurls'][0]['url']) ? $this->_item['imageurls'][0]['url'] . '&access=' . $this->_tnToken['access'] : '',
+                'image' => !empty($this->_meta['imageurls'][0]['url']) ? $this->_meta['imageurls'][0]['url'] . '&access=' . $this->_tnToken['access'] : '',
                 'title' => $this->_meta['title'] ? $this->_meta['title'] : '',
                 'url'   => $this->_shareUrl,
             ),
@@ -292,12 +289,11 @@ class Service_Data_Natemplate extends Service_Data_Base
 
     /**
      * 设置发布者信息
-     * @param $authenticationDesc
      * @param $vType
      * @param $slog
      * @return bool
      */
-    private function _setUserData($authenticationDesc, $vType, $slog) {
+    private function _setUserData($vType, $slog) {
 
         $photo = $this->_getUserPhoto();
         if (!$photo) {
@@ -308,10 +304,7 @@ class Service_Data_Natemplate extends Service_Data_Base
                 'photo' => $photo,
                 'name'  => array(
                     'text'        => $this->_source,
-                    'create_time' => '', //todo 创建时间从哪获取
-                ),
-                'desc'  => array(
-                    'text' => $authenticationDesc,
+                    'create_time' => strval($this->_meta['ts'] / 1000),
                 ),
                 'cmd'   => $this->_getUserCmd($slog),
                 'vtype' => $vType,
@@ -380,12 +373,12 @@ class Service_Data_Natemplate extends Service_Data_Base
         if (!empty($this->_meta['gimageurls'][0]['url'])) {
             if ($this->_supportWebp) {
                 //支持webp方案
-                $this->_bigImage = '';
+                $this->_bigImage = $this->_meta['gimageurls'][0]['url'];
             } else {
-                $this->_bigImage = '';
+                $this->_bigImage = $this->_meta['gimageurls'][0]['url'];
             }
         } elseif (!empty($this->_meta['imageurls'][0]['url'])) {
-            $this->_bigImage = '';
+            $this->_bigImage = $this->_meta['imageurls'][0]['url'];
         }
     }
 
@@ -400,16 +393,14 @@ class Service_Data_Natemplate extends Service_Data_Base
             }
             if ($this->_supportWebp) {
                 $this->_imageItems[] = array(
-                    'image' => '',
+                    'image' => $imageItem['url'],
                 );
             } else {
                 $this->_imageItems[] = array(
-                    'image' => '',
+                    'image' => $imageItem['url'],
                 );
             }
         }
-
-        $this->_imageItems = array();
     }
 
     /**
@@ -421,15 +412,16 @@ class Service_Data_Natemplate extends Service_Data_Base
         if (empty($this->_source)) {
             return false;
         }
-        if ($source = $this->_meta['site'] == '') {
+        if (($source = $this->_meta['site']) == '') {
             return false;
         }
         $title = $this->_meta['title'] ? $this->_meta['title'] : '';
 
-        if ($this->_bigImage) {
+        $imageCount = count($this->_imageItems);
+        if ($this->_bigImage && $imageCount == 1) {
 
             //单图
-            $isImage = $this->_meta['_set_mc_imgcnt'] && $this->_meta['_set_mc_imgcnt'] > 1;
+            $isImage = ($this->_meta['_set_mc_imgcnt'] && $this->_meta['_set_mc_imgcnt'] > 1);
             $this->_tpl = array(
                 'layout' => 'star_bigimage',
                 'data'   => array(
@@ -440,7 +432,7 @@ class Service_Data_Natemplate extends Service_Data_Base
                     'duration' => $isImage ? $this->_meta['_set_mc_imgcnt'] . '图' : '',
                 ),
             );
-        } elseif (count($this->_imageItems) >= 2) {
+        } elseif ($imageCount >= 2) {
             //多图（2-9）
             $this->_tpl = array(
                 'layout' => 'star_image3',
@@ -524,7 +516,7 @@ class Service_Data_Natemplate extends Service_Data_Base
                 'source' => $this->_source, //todo
                 'image'  => $this->_bigImage,
                 'type'   => 'video',
-                'duration' => $this->_meta['displaytype_exinfo']['long'] ? $this->_formatDuration($this->_meta['displaytype_exinfo']['long']) : '',
+                'duration' => isset($this->_meta['displaytype_exinfo']['long']) ? $this->_formatDuration($this->_meta['displaytype_exinfo']['long']) : '',
             ),
         );
 

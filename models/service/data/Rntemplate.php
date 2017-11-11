@@ -6,7 +6,7 @@
  * Time: 下午2:46
  */
 
-class Rntemplate {
+class Service_Data_Rntemplate extends Service_Data_Base {
 
     const UGC_LAND_URL = 'https://mbd.baidu.com/webpage?type=user&action=dynamic&context=%s';
     const STAT_LAND_URL = 'https://mbd.baidu.com/webpage?type=celebrity&action=dynamic&context=%s';
@@ -45,7 +45,7 @@ class Rntemplate {
         $this->_requests = $requests;
         $this->_supportWebp = $this->_requests['webp'] == 'webp'; //端上是否支持展现webp图像
         $this->_bdVersion = isset($this->_requests['bd_version']) ? $this->_requests['bd_version'] : '0';
-        $this->_tnToken = Bd_Conf::getAppConf('comment/tn_token');
+        $this->_tnToken = Bd_Conf::getAppConf('common/tn_token');
     }
 
     /**
@@ -57,8 +57,8 @@ class Rntemplate {
 
         $this->_item = $item;
         $this->_meta = &$this->_item['meta'];
-        $this->_like = &$this->_item['like_info'];
-        $this->_comment = &$this->_item['comment_info'];
+        $this->_like = &$this->_item['like'];
+        $this->_comment = &$this->_item['comment'];
 
         $sucFlag = false;
         if ($this->_item['type'] == 1 && $this->_buildNormalTemplate()) {
@@ -101,7 +101,6 @@ class Rntemplate {
         $title = $this->_meta['title'] ? $this->_meta['title'] : '';
 
         //分享url
-        $shareUrl = '';
         if ($this->_itemType == 9) {
             //视频
             $nid = $this->_meta['displaytype_exinfo']['vid'] ? $this->_meta['displaytype_exinfo']['vid'] : '';
@@ -133,7 +132,7 @@ class Rntemplate {
             'user' => array(
                 'photo' => $photo,
                 'name_text' => $this->_source,
-                'update_time' => '', //todo 从哪取
+                'update_time' => strval($this->_meta['ts'] / 1000),
                 'cmd' => array(
                     'mode' => $this->_menuMode,
                     'url'  => '', //todo
@@ -151,11 +150,11 @@ class Rntemplate {
             'zan' => array(
                 'praise'  => $this->_like['count'] ? $this->_like['count'] : '',
                 'degrade' => '0', //todo
-                'userOp'  => $this->_like['status'] ? true : false,
+                'userOp'  => $this->_like['type'] == '1' ? true : false,
                 't'       => '', //todo
                 'nid'     => $this->_meta['nid'],
             ),
-            'comment_num' => $this->_comment['comment_num'] ? $this->_comment['comment_num'] : '',
+            'comment_num' => $this->_comment['count'] ? $this->_comment['count'] : '',
             'cmdtocomment' => array(
                 'mode' => $this->_menuMode,
                 'url'  => ''//todo
@@ -164,7 +163,28 @@ class Rntemplate {
                 'url' => $shareUrl,
                 'title' => $title,
             ),
+            'poster' => array(   //todo
+                'is_gif' => 0,
+                'url'    => '',
+                'width'  => '',
+                'height' => '',
+            ),
         );
+
+        if (in_array($this->_itemType, array(2, 3, 4))) {
+            foreach ($this->_meta['imageurls'] as $imageurl) {
+                $this->_tpl['itemData']['thumbnail'][] = $imageurl['url'];
+            }
+        } elseif ($this->_itemType == 9) {
+            if ($this->_meta['gimageurls'][0]['url']) {
+                $this->_tpl['itemData']['thumbnail'][] = $this->_meta['gimageurls'][0]['url'];
+            } elseif ($this->_meta['imageurls'][0]['url']) {
+                $this->_tpl['itemData']['thumbnail'][] = $this->_meta['imageurls'][0]['url'];
+            }
+            $this->_tpl['itemData']['duration'] = isset($this->_meta['displaytype_exinfo']['long']) ? $this->_formatDuration($this->_meta['displaytype_exinfo']['long']) : '';
+        }
+
+        return true;
     }
 
     /**
@@ -198,7 +218,7 @@ class Rntemplate {
         } elseif ($this->_meta['type'] == 'videolive') {
             //视频
             $this->_itemType = 9;
-            $this->_tpl['itemType'] = 'follow_horizontal_image';
+            $this->_tpl['itemType'] = 'follow_video';
         } else {
             return false;
         }
@@ -217,7 +237,14 @@ class Rntemplate {
      * 清除临时字段
      */
     private function _clean() {
-
+        $this->_item = null;
+        $this->_meta = null;
+        $this->_like = null;
+        $this->_comment = null;
+        $this->_tpl = null;
+        $this->_itemType = 1; // 1: 纯文字 2: 一图（横图） 3: 一图（纵图）4: 多图 9: 视频
+        $this->_sourceFrom = null;
+        $this->_source = null;
     }
 
     /**
@@ -241,5 +268,24 @@ class Rntemplate {
             return $photo;
         }
         return false;
+    }
+
+    /**
+     * 格式化视频时长
+     * @param $seconds
+     * @return string
+     */
+    private function _formatDuration($seconds){
+        $durationSec = (int)$seconds;
+        $hour = floor($durationSec / 3600);
+        $hourSecond = $durationSec - $hour * 3600;
+        $minute = floor($hourSecond / 60);
+        $second = floor($hourSecond - $minute * 60);
+        if ($hour) {
+            $duration = sprintf('%02d:%02d:%02d', $hour, $minute, $second);
+        } else {
+            $duration = sprintf('%02d:%02d', $minute, $second);
+        }
+        return $duration;
     }
 }

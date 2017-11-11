@@ -81,7 +81,7 @@ class Service_Data_Items extends Service_Data_Base
         //var_dump("weiyangjiang________________metaItems",json_encode($metaItems[0]));
             
         $commentHandler = new Service_Data_Comment();
-        $comments = $commentHandler->getCommentsCount(&$metaItems);
+        $comments = $commentHandler->getCommentsCount($metaItems);
         
         $resItems = array();
         foreach ($metaItems as $meta) {
@@ -108,11 +108,12 @@ class Service_Data_Items extends Service_Data_Base
             $resItem['comment'] = array(
                 "count" => isset($comments[$commentKey])? ''.$comments[$commentKey]:"",
             );
+
+            $resItem['type'] = 1; //todo 测试 暂设
             
             $resItems[] = $resItem;
             
         }
-        var_dump("tttttttttttttttttttttttttemp",json_encode($resItems));
         return $resItems;
     }
 
