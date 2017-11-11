@@ -8,39 +8,26 @@
  */
 
 class Service_Page_Follow_Follow extends Service_Page_Follow_Base {
-
     /**
-     * @return array
+     * @desc
+     * @param 
+     * @return 
      */
     protected function run() {
+        $arrResult = array(
+                'errno' => '-1',
+                'timestamp'=>'0',
+                'data' => array()
+                );
 
         $time = time();
 
         // meta获取
         $nids = Service_Data_Nidpolicy::getNids();
-        $metaItems = Service_Data_Feed::getFeedMetaByNids($nids);
-        //var_dump("weiyanjiang_request",json_encode($request));
-        // 获取点赞数
+        $tplHandler = new Service_Data_Items();
         $uid = 621388556;
-        $likeHandler = new Service_Data_Like();
-        $ret = $likeHandler->getLikeData($nids, $uid, 'feed');
-
-        var_dump("weiyanjiang_likeData",json_encode($ret));
-
-        $threadIds = array();
-        $commentHandler = new Service_Data_Comment();
-        foreach ($metaItems as $meta) {
-            //    var_dump("weiyangjiang________________meta",$meta['meta']);
-            $metaInfo = json_decode($meta['meta'], true);
-            if (isset($metaInfo['thread_id']) && 0 < strlen($metaInfo['thread_id'])) {
-                $threadIds[] = $metaInfo['thread_id'];
-            }
-        }
-
-        $ret = $commentHandler->commentFactory->mGetCountByThreadId($threadIds);
-        var_dump("weiyanjiang_ret",$ret);
-
-        $data = array();
-        return $data;
+        $ret = $tplHandler->getItemsFromNids($nids, true, $uid);
+                
+       // echo json_encode($arrResult);
     }
 }

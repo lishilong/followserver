@@ -16,11 +16,12 @@ class Service_Data_Nidpolicy extends Service_Data_Base{
      * @param array $nids
      * @return array
      */
-    public function getNids(){
+    public static function getNids(){
         $nids = array(
-                "731105962789415638",
-                "513279506602442924",
-                );
+            "731105962789415638",//only wen
+            "194981331293336627",//多图文
+            "11807010522114859551"//视频
+        );
         return $nids;
     }
 
