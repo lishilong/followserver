@@ -70,6 +70,10 @@ class Service_Data_Natemplate extends Service_Data_Base
         3 => 'https://b.bdstatic.com/searchbox/image/cmsuploader/20170719/1500448460903468.png', //yellow
     );
 
+    /**
+     * Service_Data_Natemplate constructor.
+     * @param $requests
+     */
     public function __construct($requests) {
         $this->_requests = $requests;
         $this->_supportWebp = $this->_requests['webp'] == 'webp'; //端上是否支持展现webp图像
