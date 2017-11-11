@@ -61,31 +61,13 @@ class Service_Data_Like extends Service_Data_Base
      */
     public function getLikeInfo($ids,$uid,$page='feedlist')
     {
-        $result = array();
         $likeIdsChunk = array_chunk($ids, 20);
         $likeData = array();
         foreach($likeIdsChunk as $key => $val){
             $likeDataChunk = $this->getList($val,$uid);
             $likeData = array_merge_recursive($likeData, is_array($likeDataChunk) ? $likeDataChunk : array());
         }
-        $result = $likeData;
-        /*foreach($ids as $key => $val){
-        //val:feed_news_${nid}
-        $idArr = explode('_',$val);
-        //type:feed
-        $type = array_shift($idArr);
-        //id:news_${nid}
-        $id = implode('_',$idArr);
-        if(isset($likeData[$type][$id])){
-        $item = $likeData[$type][$id];
-        $result[$val]['status'] = (isset($item['status'])&&$item['status']=='like')?'1':'0';
-        $result[$val]['count'] = isset($item['like'])?strval($item['like']):'0';
-        }else{
-        $result[$val]['status'] = '0';
-        $result[$val]['count'] = '0';
-        }
-        }*/
-        return $result;
+        return $likeData;
     }
     /**
      * @brief like
@@ -146,29 +128,7 @@ class Service_Data_Like extends Service_Data_Base
         $items = $ret['data'];
         return $items;
     }
-    /**
-     * @param array $otherTokenMsg  array('nid' = xxx)
-     * @return string
-     */
-    /* private function getBdstoken($nid,$uid){
-       $arrSrc = array();
-       $strKey = 'feed123bdstoken';
-       $requestParams = Param_ObserverMain::getRequest();
-       if($uid>0){
-       $arrSrc['uid'] = $uid;
-       }elseif(!empty($requestParams['cuid'])){
-       $arrSrc['cuid'] = $requestParams['cuid'] ;
-       }elseif(!empty($requestParams['cookie']['baiduid'])){
-       $arrSrc['baiduid'] = $requestParams['cookie']['baiduid'];
-       }
-       $strToken = '';
-       if(!empty($arrSrc)) {
-       $arrSrc['preTime'] = time();
-       $arrSrc['nid'] = $nid;
-       $strToken = Bd_Crypt_Rc4::rc4(json_encode($arrSrc), 'ENCODE', $strKey);
-       }
-       return $this->base_encode($strToken);
-       }*/
+    
     /**
      * 替换特殊字符   防止urldecode转码
      * @param $str

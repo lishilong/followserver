@@ -16,7 +16,7 @@ class Followserver_Route implements Ap_Route_Interface {
     public function route($request) {
         $requestGet = $request->getQuery();
 
-        $controller = isset($requestGet['controller']) ? $requestGet['controller'] : 'Error';
+        $controller = isset($requestGet['service']) ? $requestGet['service'] : 'Error';
         $action = isset($requestGet['action']) ? $requestGet['action'] : 'Index';
 
         $request->setControllerName(ucfirst($controller));
