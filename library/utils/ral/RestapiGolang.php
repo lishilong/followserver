@@ -99,7 +99,7 @@ class Utils_Ral_RestapiGolang
         if ($ret == false) {
             Bd_Log::addNotice('restapi_golang_error', 'ral error: ' . ral_get_error());
             if ($throwException) {
-                throw new Exception("Request restapi_golang ral error: " . ral_get_error(), ERROR_DISTRIBUTE);
+                throw new Exception("Request restapi_golang ral error: " . ral_get_error());
             } else {
                 Bd_Log::warning("Request restapi_golang ral error: " . ral_get_error());
                 return false;
@@ -109,7 +109,7 @@ class Utils_Ral_RestapiGolang
                 Bd_Log::addNotice('restapi_golang_error', $ret);
                 Bd_Log::addNotice('restapi_golang_params', $ret);
                 if ($throwException) {
-                    throw new Exception("Request restapi_golang return: " . $ret['error_msg'], ERROR_DISTRIBUTE);
+                    throw new Exception("Request restapi_golang return: " . $ret['error_msg']);
                 } else {
                     Bd_Log::warning("Request restapi_golang return: " . $ret['error_msg']);
                     return false;

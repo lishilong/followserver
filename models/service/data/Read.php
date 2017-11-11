@@ -13,21 +13,21 @@ class Service_Data_Read extends Service_Data_Base
      * @param $array
      * @return array
      */
-      public function getReadNumber($array)
-      {
-            $arr = $array();
-            if(!is_array($array) || count($array) == 0)
-            {
-                  return $arr;
-            }
+    public function getReadNumber($array)
+    {
+        $arr = $array();
+        if(!is_array($array) || count($array) == 0)
+        {
+              return $arr;
+        }
 
-            $result = Box_Social_Celebrity_InteractiveData::mgetViewCount($array);
+        $result = Box_Social_Celebrity_InteractiveData::mgetViewCount($array);
 
-            if(is_array($result) &&  !empty($result['mget']))
-            {
-                  $arr = $result['mget'];
-            }
+        if(is_array($result) &&  !empty($result['mget']))
+        {
+              $arr = $result['mget'];
+        }
 
-            return $arr;
+        return $arr;
       }
 }
