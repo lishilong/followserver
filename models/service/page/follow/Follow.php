@@ -17,7 +17,7 @@ class Service_Page_Follow_Follow extends Service_Page_Follow_Base {
         $time = time();
 
         // meta获取
-        $nids = Service_Data_Nidpolicy::getNids();
+        $nids = Service_Data_Nidpolicy::getNids($this->requests);
         $metaItems = Service_Data_Feed::getFeedMetaByNids($nids);
         //var_dump("weiyanjiang_request",json_encode($request));
         // 获取点赞数
