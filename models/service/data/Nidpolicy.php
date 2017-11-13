@@ -15,7 +15,7 @@ class Service_Data_Nidpolicy extends Service_Data_Base{
      * @return array
      */
 
-    public function getNids($requests)
+ /*   public function getNids($requests)
     {
         //获取数据
         $data = array(
@@ -53,14 +53,11 @@ class Service_Data_Nidpolicy extends Service_Data_Base{
         $nids = Utils_Ral_RestapiGolang::getInstance()->getStreamData($data);
         return $nids;
     }
-
-//    public static function getNids(){
-//        $nids = array(
-//            "731105962789415638",//only wen
-//            "194981331293336627",//多图文
-//            "11807010522114859551"//视频
-//        );
-//        return $nids;
-//    }
+*/
+    public static function getFeedList(){
+        $mock='[{"id":"194981331293336627","display_strategy":{"category":0,"tag":2,"type":0,"mark":0,"templates":{"id":[-1]},"content":[]},"ext":{"ac":9,"tag":2,"mark":0,"rec_src":[4],"cs":"2229979592 2583121467","ua":"1080_1920_android_10.0.0.0_480","ut":"VTR-AL00_7.0_24_HUAWEI","province":"閸栨ぞ鍚敮锟�","city":"閸栨ぞ鍚敮锟�","district":"濞撮攱绌╅崠锟�","channel_id":1,"session_id":"1510123560718","refresh_index":"9","position":0,"log_id":2917608246,"scroll_id":"","refresh_timestamp_ms":1509692121744,"templates":{"id":[-1]}},"cs":"2229979592 2583121467","timestamp":1509692122258},{"id":"1xxxxxxxxxxxxxxxx","display_strategy":{"category":0,"tag":2,"type":0,"mark":0,"templates":{"id":[29]},"content":[{"id":"dk_XXXXX","account_name":"姒涘嫰顥ｆウ锟�","account_id":54,"account_md5":"","score":0.116636,"ts":1504623635,"ext":{"account_name":"姒涘嫰顥ｆウ锟�","account_id":54,"account_md5":"","score":0.116636,"ts":1504623635,"recall_type":0,"vertical_type":0,"sample_name":""}}]},"ext":{"ac":9,"tag":2,"mark":0,"rec_src":[4],"cs":"2229979592 2583121467","ua":"1080_1920_android_10.0.0.0_480","ut":"VTR-AL00_7.0_24_HUAWEI","province":"閸栨ぞ鍚敮锟�","city":"閸栨ぞ鍚敮锟�","district":"濞撮攱绌╅崠锟�","channel_id":1,"session_id":"1510123560718","refresh_index":"9","position":0,"log_id":2917608246,"scroll_id":"","refresh_timestamp_ms":1509692121744,"templates":{"id":[-1]}},"cs":"2229979592 2583121467","timestamp":1509692122258},{"id":"11807010522114859551","display_strategy":{"category":0,"tag":2,"type":0,"mark":0,"templates":{"id":[-1]},"content":[]},"ext":{"ac":9,"tag":2,"mark":0,"rec_src":[4],"cs":"2229979592 2583121467","ua":"1080_1920_android_10.0.0.0_480","ut":"VTR-AL00_7.0_24_HUAWEI","province":"閸栨ぞ鍚敮锟�","city":"閸栨ぞ鍚敮锟�","district":"濞撮攱绌╅崠锟�","channel_id":1,"session_id":"1510123560718","refresh_index":"9","position":0,"log_id":2917608246,"scroll_id":"","refresh_timestamp_ms":1509692121744,"templates":{"id":[-1]}},"cs":"2229979592 2583121467","timestamp":1509692122258}]';
+        $feedList = json_decode($mock, true);
+        return $feedList;
+    }
 
 }
