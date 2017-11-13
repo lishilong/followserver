@@ -249,6 +249,10 @@ class Service_Data_Rntemplate extends Service_Data_Base {
         return true;
     }
 
+    /**
+     * 获取用户调起命令
+     * @return string
+     */
     private function _getUserCmd() {
 
         $userCmd = '';
