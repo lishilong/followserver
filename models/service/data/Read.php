@@ -10,22 +10,26 @@ class Service_Data_Read extends Service_Data_Base
 {
     /**
      * 获取阅读数
-     * @param $array
+     * @param $arrayNids
      * @return array
      */
-    public function getReadNumber($array)
+    public function getReadNumber($arrayNids)
     {
-        $arr = $array();
-        if(!is_array($array) || count($array) == 0)
+        $arr = array();
+        if(!is_array($arrayNids) || count($arrayNids) == 0)
         {
               return $arr;
         }
 
-        $result = Box_Social_Celebrity_InteractiveData::mgetViewCount($array);
+        //拼装数组
+        $newArrayNids = $this->addArrayPrefix($arrayNids);
+
+        $result = Box_Social_Celebrity_InteractiveData::mgetViewCount($newArrayNids);
 
         if(is_array($result) &&  !empty($result['mget']))
         {
-              $arr = $result['mget'];
+             //删除数组KEY的前缀
+              $arr = $this->delArrayPrefix($result['mget']);
         }
 
         return $arr;

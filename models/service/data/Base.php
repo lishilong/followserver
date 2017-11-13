@@ -44,4 +44,51 @@ class Service_Data_Base {
         return $this->_errno;
     }
 
+
+    /**
+     * 拼装数组前缀dt_
+     * @param $arrayNids
+     * @return array
+     */
+    public function addArrayPrefix($arrayNids)
+    {
+        $list = array();
+
+        foreach($arrayNids as $val){
+            $str = substr($val,0,3);
+            if($str == 'dt_'){
+                $list[] = $val;
+            }else{
+                $list[] = 'dt_'.$val;
+            }
+        }
+
+        return $list;
+    }
+
+
+    /**
+     * 去除数组KEY前缀
+     * @param $arrayMget
+     * @return array
+     */
+    public function delArrayPrefix($arrayMget)
+    {
+        $data = array();
+
+        foreach($arrayMget as $key => $val)
+        {
+            $str = substr($val,0,3);
+            if($str == "dt_")
+            {
+                $newKey = substr($key,3);
+                $data[$newKey] = $val;
+            }else{
+                $data[$key] = $val;
+            }
+        }
+
+        return $data;
+    }
+
 }
