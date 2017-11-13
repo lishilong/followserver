@@ -122,6 +122,9 @@ class Service_Data_Rntemplate extends Service_Data_Base {
         }
 
         $vType = isset($this->_meta['displaytype_exinfo']['is_authenticated']) ? strval($this->_meta['displaytype_exinfo']['is_authenticated']) : '';
+        if (in_array($this->_sourceFrom, array('ugc', 'ugc_baijiahao'))) {
+            $vType = '';
+        }
 
         $title = $this->_meta['title'] ? $this->_meta['title'] : '';
 
