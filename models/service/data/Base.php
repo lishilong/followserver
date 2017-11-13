@@ -68,7 +68,7 @@ class Service_Data_Base {
 
 
     /**
-     * 去除数组KEY前缀
+     * 去除数组KEY前缀dt_
      * @param $arrayMget
      * @return array
      */
