@@ -14,28 +14,18 @@ class Service_Page_Follow_Follow extends Service_Page_Follow_Base {
      * @return 
      */
     protected function run() {
-        $arrResult = array(
-                'errno' => '-1',
-                'timestamp'=>'0',
-                'data' => array()
-                );
-
-        $time = time();
-
+        
         // meta获取
-
-        $nids = Service_Data_Nidpolicy::getNids($this->requests);
-        $tplHandler = new Service_Data_Items();
-
         $uid = 621388556;
-        $ret = $tplHandler->getItemsFromNids($nids, true, $uid);
+        $tplHandler = new Service_Data_Items();
+        $retItems = $tplHandler->getItems($uid);
 
         $rnData = array();
         $naData = array();
 
         $rnTemplateHandler = new Service_Data_Rntemplate($this->requests);
         $naTemplateHandler = new Service_Data_Natemplate($this->requests);
-        foreach ($ret as $item) {
+        foreach ($retItems as $item) {
             ($rnItem = $rnTemplateHandler->buildTemplate($item)) != false && $rnData[] = $rnItem;
             ($naItem = $naTemplateHandler->buildTemplate($item)) != false && $naData[] = $naItem;
         }
@@ -45,6 +35,5 @@ class Service_Page_Follow_Follow extends Service_Page_Follow_Base {
             'na' => $naData,
         );
                 
-       // echo json_encode($arrResult);
     }
 }
