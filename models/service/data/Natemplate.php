@@ -10,13 +10,17 @@
 class Service_Data_Natemplate extends Service_Data_Base
 {
     const UGC_LAND_URL = 'https://mbd.baidu.com/webpage?type=user&action=dynamic&context=%s';
-    const STAT_LAND_URL = 'https://mbd.baidu.com/webpage?type=celebrity&action=dynamic&context=%s';
-    const FEED_VIDEO_LAND = 'https://sv.baidu.com/videoui/page/videoland';
+    const STAR_LAND_URL = 'https://mbd.baidu.com/webpage?type=celebrity&action=dynamic&context=%s';
+    const FEED_VIDEO_URL = 'https://sv.baidu.com/videoui/page/videoland';
 
-    private $_requests = null;
-    private $_bdVerison = null;
+    const UGC_LAND_HYBRID = 'baiduboxapp://v1/easybrowse/hybrid?upgrade=1&type=hybrid&tplpath=profile&tpl_id=dynamic.html&context=%s&style=%s&newbrowser=1&slog=%s';
+    const STAR_LAND_HYBRID = 'baiduboxapp://v1/easybrowse/hybrid?upgrade=1&type=hybrid&tplpath=profile&tpl_id=dynamic.html&context=%s&style=%s&newbrowser=1&slog=%s';
+
+    const HOME_LAND_HYBRID = 'baiduboxapp://v1/easybrowse/hybrid?upgrade=1&type=hybrid&tplpath=profile&tpl_id=profile.html&context=%s&style=%s&newbrowser=1&slog=%s';
+
+    const FEED_VIDEO_LAND = 'baiduboxapp://v1/easybrowse/open?newbrowser=1&append=1&upgrade=1&type=video&url=%s&toolbaricons=%s&menumode=%s&slog=%s';
+
     private $_tnToken = null;
-    private $_supportWebp = false;
 
     private $_item = null;
     private $_meta = null;
@@ -27,10 +31,8 @@ class Service_Data_Natemplate extends Service_Data_Base
     private $_tpl = null;
     private $_sourceFrom = null;
     private $_source = null;
-    private $_uk = null;
-    private $_followType = null;
     private $_likeType = null;
-    private $_commentCmd = null;
+    private $_commentCmd = null; //详情页评论schema
     private $_shareUrl = null;
     private $_likeExt = null;
 
@@ -44,23 +46,13 @@ class Service_Data_Natemplate extends Service_Data_Base
     );
     private $_menuMode = '2';//可选 1:纯H5页面菜单。收藏，下载，刷新，分享，设置，意见反馈 2:feed 菜单。 刷新，复制，意见反馈，iOS 多一个夜间模式 3:NA 菜单。收藏，下载，设置，意见反馈
 
-    private $_style = array(
-        'showtoolbar'   => '1',
-        'menumode'      => '2',
-        'toolbaricons'  => array(
-            'toolids'   => array(
-                '3',
-            ),
-        ),
-    );
-
-    private $_slog = array(
-        'from'   => 'feed',//业务标识
-        'type'   => 'time',//时长
-        'page'   => '',//页面标识
-        'source' => 'index',
-        'ext'    => '',
-    );
+//    private $_slog = array(
+//        'from'   => 'feed',//业务标识
+//        'type'   => 'time',//时长
+//        'page'   => '',//页面标识
+//        'source' => 'index',
+//        'ext'    => '',
+//    );
 
     // V标图片
     private $_flagV = array(
@@ -75,9 +67,6 @@ class Service_Data_Natemplate extends Service_Data_Base
      * @param $requests
      */
     public function __construct($requests) {
-        $this->_requests = $requests;
-        $this->_supportWebp = $this->_requests['webp'] == 'webp'; //端上是否支持展现webp图像
-        $this->_bdVersion = isset($this->_requests['bd_version']) ? $this->_requests['bd_version'] : '0';
         $this->_tnToken = Bd_Conf::getAppConf('common/tn_token');
     }
 
@@ -121,8 +110,6 @@ class Service_Data_Natemplate extends Service_Data_Base
         $this->_tpl = null;
         $this->_sourceFrom = null;
         $this->_source = null;
-        $this->_uk = null;
-        $this->_followType = null;
         $this->_likeType = null;
         $this->_commentCmd = null;
         $this->_shareUrl = null;
@@ -151,9 +138,6 @@ class Service_Data_Natemplate extends Service_Data_Base
                     'name'  => array(       //用户名
                         'text'        => '',      //明星姓名
                         'create_time' => '',      //资源发布时间
-                    ),
-                    'desc'  => array(
-                        'text' => '',
                     ),
                     'cmd'   => '',
                     'vtype' => '',              //V标，0 无，1 橙V，2 蓝V
@@ -196,18 +180,17 @@ class Service_Data_Natemplate extends Service_Data_Base
             $this->_source = $this->_meta['site'] ? $this->_meta['site'] : '';
         }
 
+        $this->_setBigImage();
+        $this->_setImageItems();
 
         //判断应该使用哪种模板
         if ($this->_meta['type'] == 'text') {
             //图文模板
-            $this->_setBigImage();
-            $this->_setImageItems();
             if (!$this->_buildNewsTpl()) {
                 return false;
             }
         } elseif ($this->_meta['type'] == 'videolive') {
             //视频模板
-            $this->_setBigImage();
             if (!$this->_buildVideoTpl()) {
                 return false;
             };
@@ -217,48 +200,33 @@ class Service_Data_Natemplate extends Service_Data_Base
             return false;
         }
         
-        $vType = $this->_meta['displaytype_exinfo']['is_authenticated'] ? strval($this->_meta['displaytype_exinfo']['is_authenticated']) : '';
+        $vType = isset($this->_meta['displaytype_exinfo']['is_authenticated']) ? strval($this->_meta['displaytype_exinfo']['is_authenticated']) : '';
 
-        $this->_followType = 'celebrity';
         $this->_likeType = 'star';
         switch ($this->_sourceFrom) {
             case 'star':
-                $this->_followType = 'celebrity';
                 $this->_likeType = 'star';
                 break;
             case 'ugc':
                 $vType = '';
-                $this->_followType = 'ugc';
                 $this->_likeType = 'ugcsimple';
                 break;
             case 'ugc_baijiahao':
                 $vType = '';
-                $this->_followType = 'media';
                 $this->_likeType = 'ugcbjh';
                 break;
             default:
                 break;
         }
 
-        $slog = $this->_slog;
-        $slog['page'] = $this->_followType . '_homepage';//页面标识
-
-        //因为没有对齐主线100 新增一部分逻辑 todo why?
-        $uk = $this->_meta['displaytype_exinfo']['uk'] ? strval($this->_meta['displaytype_exinfo']['uk']) : '';
-        if (isset($this->_meta['displaytype_exinfo']) && in_array($this->_sourceFrom, array('ugc', 'ugc_baijiahao'))) {
-            $uk = Mbd_Account_Profile::getUkByUid($this->_meta['displaytype_exinfo']);
-            $this->_meta['displaytype_exinfo']['uk'] = $uk;
-        }
-        $this->_uk = $uk;
-
-        if (!$this->_setUserData($vType, $slog)) {
+        if (!$this->_setUserData($vType)) {
             return false;
         }
 
         $this->_setBar();
 
         //阅读数
-        $this->_tpl['data']['comoment_num'] = $this->_item['read_count'];
+        $this->_tpl['data']['comment_num'] = isset($this->_item['read_count']) ? $this->_item['read_count'] : '';
 
         return true;
     }
@@ -271,16 +239,16 @@ class Service_Data_Natemplate extends Service_Data_Base
         $this->_likeExt['type'] = $this->_likeType;
         $this->_tpl['data']['bar'] = array(
             'like' => array(
-                'count' => $this->_like['count'] ? $this->_like['count'] : '',
-                'type'  => $this->_like['type'] ? $this->_like['type'] : '',
+                'count' => isset($this->_like['count']) ? $this->_like['count'] : '',
+                'type'  => isset($this->_like['type']) ? $this->_like['type'] : '',
                 'ext'   => json_encode($this->_likeExt),
             ),
             'comment' => array(
-                'count' => $this->_comment['count'] ? $this->_comment['count'] : '',
+                'count' => isset($this->_comment['count']) ? $this->_comment['count'] : '',
                 'cmd'   => $this->_commentCmd,
             ),
             'share'   => array(
-                'image' => !empty($this->_meta['imageurls'][0]['url']) ? $this->_meta['imageurls'][0]['url'] . '&access=' . $this->_tnToken['access'] : '',
+                'image' => !empty($this->_imageItems[0]) ? $this->_imageItems[0]['image'] : '',
                 'title' => $this->_meta['title'] ? $this->_meta['title'] : '',
                 'url'   => $this->_shareUrl,
             ),
@@ -290,10 +258,9 @@ class Service_Data_Natemplate extends Service_Data_Base
     /**
      * 设置发布者信息
      * @param $vType
-     * @param $slog
      * @return bool
      */
-    private function _setUserData($vType, $slog) {
+    private function _setUserData($vType) {
 
         $photo = $this->_getUserPhoto();
         if (!$photo) {
@@ -306,7 +273,7 @@ class Service_Data_Natemplate extends Service_Data_Base
                     'text'        => $this->_source,
                     'create_time' => strval($this->_meta['ts'] / 1000),
                 ),
-                'cmd'   => $this->_getUserCmd($slog),
+                'cmd'   => $this->_getUserCmd(),
                 'vtype' => $vType,
                 'v_url' => isset($this->_flagV[$vType]) ? $this->_flagV[$vType] : '',
             ),
@@ -316,30 +283,43 @@ class Service_Data_Natemplate extends Service_Data_Base
 
     /**
      * 获取发布者点击schema
-     * @param $slog
      * @return string
      */
-    private function _getUserCmd($slog) {
+    private function _getUserCmd() {
 
         $userCmd = '';
-        if (isset($this->_meta['displaytype_exinfo']['uk'])) {
+
+        $style = array(
+            'showtoolbar' => '1',
+            'menumode' => '2',
+            'toolbaricons' => array(
+                'toolids' => array(
+                    '3',
+                ),
+            ),
+        );
+        $slog = array(); //todo
+
+        $uk = $this->_meta['displaytype_exinfo']['uk'] ? strval($this->_meta['displaytype_exinfo']['uk']) : '';
+        if (isset($this->_meta['displaytype_exinfo']) && in_array($this->_sourceFrom, array('ugc', 'ugc_baijiahao'))) {
+            $uk = Mbd_Account_Profile::getUkByUid($this->_meta['displaytype_exinfo']['uid']);
+            $this->_meta['displaytype_exinfo']['uk'] = $uk;
+        }
+        if ($uk) {
             $context = array(
-                'uk'   => $this->_uk,
+                'uk'   => $uk,
                 'from' => 'feed',
                 'ext'  => 'tab=dynamic',
             );
-            $url = sprintf("https://mbd.baidu.com/webpage?type={$this->_followType}&action=home&context=%s", rawurlencode(json_encode($context)));
-            $schemeTpl = 'baiduboxapp://v1/easybrowse/open?newbrowser=1&append=1&url=%s&style=%s&slog=%s';
-            $userCmd = sprintf($schemeTpl, rawurlencode($url), rawurlencode(json_encode($this->_style)), rawurlencode(json_encode($slog)));
+            $userCmd = sprintf(self::HOME_LAND_HYBRID, rawurlencode(json_encode($context)), rawurlencode(json_encode($style)), rawurlencode(json_encode($slog)));
         } elseif (isset($this->_meta['displaytype_exinfo']['mr_id'])) {
             $context = array(
                 'mr_id' => $this->_meta['displaytype_exinfo']['mr_id'],
                 "from"  => "feed",
             );
-            $url = sprintf("https://mbd.baidu.com/webpage?type={$this->_followType}&action=home&context=%s", rawurlencode(json_encode($context)));
-            $schemeTpl = 'baiduboxapp://v1/easybrowse/open?newbrowser=1&append=1&url=%s&style=%s&slog=%s';
-            $userCmd = sprintf($schemeTpl, rawurlencode($url), rawurlencode(json_encode($this->_style)), rawurlencode(json_encode($slog)));
+            $userCmd = sprintf(self::HOME_LAND_HYBRID, rawurlencode(json_encode($context)), rawurlencode(json_encode($style)), rawurlencode(json_encode($slog)));
         }
+
         return $userCmd;
     }
 
@@ -350,15 +330,11 @@ class Service_Data_Natemplate extends Service_Data_Base
     private function _getUserPhoto() {
         $photo = '';
         if ($this->_meta['displaytype_extinfo']['https_avatar']) {
-            $photo = $this->_meta['displaytype_extinfo']['https_avatar'];
-            if ($this->_supportWebp) {
-                //todo
-            }
+
+            $photo = $this->_meta['displaytype_extinfo']['https_avatar'] . '&access=' . $this->_tnToken['access'];
         } elseif ($this->_meta['author_img']['original']['url']) {
-            $photo = $this->_meta['author_img']['original']['url'];
-            if ($this->_supportWebp) {
-                //todo
-            }
+
+            $photo = $this->_meta['author_img']['original']['url'] . '&access=' . $this->_tnToken['access'];
         }
         if ($photo) {
             return $photo;
@@ -367,39 +343,26 @@ class Service_Data_Natemplate extends Service_Data_Base
     }
 
     /**
-     * 设置大图 todo
+     * 设置大图 直接使用原图
      */
     private function _setBigImage() {
         if (!empty($this->_meta['gimageurls'][0]['url'])) {
-            if ($this->_supportWebp) {
-                //支持webp方案
-                $this->_bigImage = $this->_meta['gimageurls'][0]['url'];
-            } else {
-                $this->_bigImage = $this->_meta['gimageurls'][0]['url'];
-            }
+            $this->_bigImage = Utils_Image::feedHttpToHttps($this->_meta['gimageurls'][0]['url'] . '&access=' . $this->_tnToken['access']);
         } elseif (!empty($this->_meta['imageurls'][0]['url'])) {
-            $this->_bigImage = $this->_meta['imageurls'][0]['url'];
+            $this->_bigImage = Utils_Image::feedHttpToHttps($this->_meta['imageurls'][0]['url'] . '&access=' . $this->_tnToken['access']);
         }
     }
 
     /**
-     * 设置多图 todo
+     * 设置多图 直接使用原图
      */
     private function _setImageItems() {
 
         foreach ($this->_meta['imageurls'] as $imageItem) {
-            if (!$imageItem['url']) {
-                continue;
-            }
-            if ($this->_supportWebp) {
-                $this->_imageItems[] = array(
-                    'image' => $imageItem['url'],
-                );
-            } else {
-                $this->_imageItems[] = array(
-                    'image' => $imageItem['url'],
-                );
-            }
+
+            $this->_imageItems[] = array(
+                'image' => Utils_Image::feedHttpToHttps($imageItem['url'] . '&access=' . $this->_tnToken['access']),
+            );
         }
     }
 
@@ -409,12 +372,6 @@ class Service_Data_Natemplate extends Service_Data_Base
      */
     private function _buildNewsTpl() {
 
-        if (empty($this->_source)) {
-            return false;
-        }
-        if (($source = $this->_meta['site']) == '') {
-            return false;
-        }
         $title = $this->_meta['title'] ? $this->_meta['title'] : '';
 
         $imageCount = count($this->_imageItems);
@@ -426,7 +383,7 @@ class Service_Data_Natemplate extends Service_Data_Base
                 'layout' => 'star_bigimage',
                 'data'   => array(
                     'title'    => $title,
-                    'source'   => $source, //todo 只有来自微博才显示
+                    'source'   => '',
                     'image'    => $this->_bigImage,
                     'type'     => $isImage ? 'image' : '',
                     'duration' => $isImage ? $this->_meta['_set_mc_imgcnt'] . '图' : '',
@@ -438,8 +395,7 @@ class Service_Data_Natemplate extends Service_Data_Base
                 'layout' => 'star_image3',
                 'data'   => array(
                     'title'      => $title,
-                    'title_rich' => array(), //todo
-                    'source'     => $source,
+                    'source'     => '',
                     'items'      => $this->_imageItems,
                 ),
             );
@@ -449,21 +405,13 @@ class Service_Data_Natemplate extends Service_Data_Base
                 'layout' => 'star_text',
                 'data'   => array(
                     'text0'  => $title,
-                    'source' => $source,
+                    'source' => '',
                 ),
             );
         }
 
         //commentCmd
-        $slog = $this->_slog;
-        $ext = array(
-            //'gr_ext' => '', todo not need?
-            'source' => $source,
-            'layout' => $this->_tpl['layout'],
-        );
-        $slog['ext'] = json_encode($ext);
-        $slog['page'] = 'star_detailpage';
-        $nid = $this->_item['nid']; //todo 这里必须有
+        $nid = $this->_item['nid'];
         $context = array(
             'feed_id' => $nid,
             'from'    => 'feed',
@@ -475,17 +423,28 @@ class Service_Data_Natemplate extends Service_Data_Base
         );
 
         if (in_array($this->_sourceFrom, array('ugc', 'ugc_baijiahao'))) {
-            $slog['page'] = 'ugc_detailpage';
             $context['ugc'] = 1;
             $commentContext['ugc'] = 1;
-            $url = sprintf(self::UGC_LAND_URL, rawurldecode(json_encode($context)));
-        } else {
-            $slog['page'] = 'star_detailpage';
-            $url = sprintf(self::STAT_LAND_URL, rawurldecode(json_encode($context)));
-        }
+            $url = sprintf(self::UGC_LAND_URL, rawurlencode(json_encode($context)));
 
-        $schemaTpl = 'baiduboxapp://v1/easybrowse/open?newbrowser=1&type=feed&append=1&url=%s&toolbaricons=%s&menumode=%s&slog=%s';
-        $this->_commentCmd = $this->_tpl['data']['cmd'] = sprintf($schemaTpl, rawurlencode($url), rawurlencode(json_encode($this->_toolBarIcons)), $this->_menuMode, rawurlencode(json_encode($slog)));
+            $slog = array(); //todo slog打点需要PM来定
+            $style = array(
+                'toolbaricons' => $this->_toolBarIcons,
+                'menumode'     => $this->_menuMode,
+            );
+            $this->_tpl['data']['cmd'] = sprintf(self::UGC_LAND_HYBRID, rawurlencode(json_encode($context)), rawurlencode(json_encode($style)), rawurlencode(json_encode($slog)));
+            $this->_commentCmd = sprintf(self::UGC_LAND_HYBRID, rawurlencode(json_encode($commentContext)), rawurlencode(json_encode($style)), rawurlencode(json_encode($slog)));
+        } else {
+            $url = sprintf(self::STAR_LAND_URL, rawurlencode(json_encode($context)));
+
+            $slog = array(); //todo slog打点需要PM来定
+            $style = array(
+                'toolbaricons' => $this->_toolBarIcons,
+                'menumode'     => $this->_menuMode,
+            );
+            $this->_tpl['data']['cmd'] = sprintf(self::UGC_LAND_HYBRID, rawurlencode(json_encode($context)), rawurlencode(json_encode($style)), rawurlencode(json_encode($slog)));
+            $this->_commentCmd = sprintf(self::STAR_LAND_HYBRID, rawurlencode(json_encode($commentContext)), rawurlencode(json_encode($style)), rawurlencode(json_encode($slog)));
+        }
 
         $this->_shareUrl = $url;
         return true;
@@ -513,28 +472,16 @@ class Service_Data_Natemplate extends Service_Data_Base
             'layout' => 'bigimage',
             'data'   => array(
                 'title' =>  $title,
-                'source' => $this->_source, //todo
+                'source' => '',
                 'image'  => $this->_bigImage,
                 'type'   => 'video',
                 'duration' => isset($this->_meta['displaytype_exinfo']['long']) ? $this->_formatDuration($this->_meta['displaytype_exinfo']['long']) : '',
             ),
         );
+        $slog = array(); //todo
 
-        $slog = $this->_slog;
-        $ext = array(
-            //'gr_ext' => '', todo not need?
-            'source' => $this->_source,
-            'layout' => $this->_tpl['layout'],
-        );
-        $slog['ext'] = json_encode($ext);
-        $slog['nid'] = $nid;
-        $slog['page'] = 'sv';
-
-        $sourceFrom = 'starvideo';
-        $url = self::FEED_VIDEO_LAND . '?context='. urlencode(json_encode(array('nid' => $nid, 'sourceFrom' => $sourceFrom)));
-
-        $schemaTpl = 'baiduboxapp://v1/easybrowse/open?newbrowser=1&append=1&upgrade=1&type=video&url=%s&toolbaricons=%s&menumode=%s&slog=%s';
-        $this->_commentCmd = $this->_tpl['data']['cmd'] = sprintf($schemaTpl, rawurlencode($url), rawurlencode(json_encode($this->_toolBarIcons)), $this->_menuMode, rawurlencode(json_encode($slog)));
+        $url = self::FEED_VIDEO_URL . '?context='. urlencode(json_encode(array('nid' => $nid, 'sourceFrom' => 'starvideo')));
+        $this->_commentCmd = $this->_tpl['data']['cmd'] = sprintf(self::FEED_VIDEO_LAND, rawurlencode($url), rawurlencode(json_encode($this->_toolBarIcons)), $this->_menuMode, rawurlencode(json_encode($slog)));
 
         $this->_shareUrl = $url;
         return true;
