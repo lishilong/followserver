@@ -15,8 +15,71 @@ class Service_Data_Nidpolicy extends Service_Data_Base{
      * @return array
      */
 
- /*   public function getNids($requests)
+    public function getNids($requests)
     {
+        //判断是否为空对象
+        $context = (object)array();
+        $loc_point = (object)array();
+        $smfw = (object)array();
+        $subscribe = (object)array();
+        if(isset($requests['context']) && !empty($requests['context']))
+        {
+            $scroll = '';
+            if(isset($requests['context']['scroll']) && !empty($requests['context']['scroll']))
+            {
+                $scroll = $requests['context']['scroll'];
+            }
+            $context = (object)array('scroll' => $scroll);
+        }
+
+        if(isset($requests['loc_point']) && !empty($requests['loc_point']))
+        {
+            $x = '';
+            $y = '';
+            $type = '';
+            if(isset($requests['loc_point']['x']) && !empty(($requests['loc_point']['x'])))
+            {
+                $x = $requests['loc_point']['x'];
+            }
+            if(isset($requests['loc_point']['y']) && !empty(($requests['loc_point']['y'])))
+            {
+                $x = $requests['loc_point']['y'];
+            }
+            if(isset($requests['loc_point']['type']) && !empty(($requests['loc_point']['type'])))
+            {
+                $x = $requests['loc_point']['type'];
+            }
+            $loc_point = (object)array(
+                'x' => $x,
+                'y' => $y,
+                'type' => $type
+            );
+        }
+
+        if(isset($requests['smfw']) && !empty($requests['smfw']))
+        {
+            $smfw = (object)$requests['smfw'];
+        }
+
+        if(isset($requests['subscribe']) && count($requests['subscribe']) !== 0)
+        {
+            $subscribe = array();
+            $login = '';
+            if(isset($requests['subscribe']['login']) && !empty($requests['subscribe']['login']))
+            {
+                $login = $requests['subscribe']['login'];
+            }
+            if(isset($requests['subscribe']['subscribe']) && count($requests['subscribe']['subscribe']) !== 0)
+            {
+                $subscribe = $requests['subscribe']['subscribe'];
+            }
+
+            $subscribe = (object)array(
+                'subscribe' => $subscribe,
+                'login' => $login
+            );
+        }
+
         //获取数据
         $data = array(
             'loc_city' => isset($requests['loc_city']) ? $requests['loc_city'] : '',
@@ -31,7 +94,7 @@ class Service_Data_Nidpolicy extends Service_Data_Base{
             'osbranch' => isset($requests['osbranch']) ? $requests['osbranch'] : '',
             'pkgname' => isset($requests['pkgname']) ? $requests['pkgname'] : '',
             'loc_province' => isset($requests['loc_province']) ? $requests['loc_province'] : '',
-            'command' => isset($requests['command']) ? $requests['command'] : '',
+            'command' => isset($requests['command']) ? $requests['command'] : 'feed',
             'ut' => isset($requests['ut']) ? $requests['ut'] : '',
             'ua' => isset($requests['ua']) ? $requests['ua'] : '',
             'front_type' => isset($requests['front_type']) ? intval($requests['front_type']) : 0,
@@ -42,18 +105,18 @@ class Service_Data_Nidpolicy extends Service_Data_Base{
             'refresh_count' => isset($requests['refresh_count']) ? intval($requests['refresh_count']) : 0,
             'channel_id' => isset($requests['channel_id']) ? intval($requests['channel_id']) : 0,
             'blacklist_timestamp' => isset($requests['blacklist_timestamp']) ? intval($requests['blacklist_timestamp']) : 0,
-            'subscribe' => isset($requests['subscribe']) ? $requests['subscribe'] : array(),
-            'smfw' => isset($requests['smfw']) ? $requests['smfw'] : array(),
             'filter' => isset($requests['filter']) ? $requests['filter'] : array(),
             'baijiahao_sub' => isset($requests['baijiahao_sub']) ? $requests['baijiahao_sub'] : array(),
-            'loc_point' => isset($requests['loc_point']) ? $requests['loc_point'] : array(),
-            'context' => isset($requests['context']) ? $requests['context'] : array()
+            'subscribe' => $subscribe,
+            'smfw' => $smfw,
+            'loc_point' => $loc_point,
+            'context' => $context
         );
 
         $nids = Utils_Ral_RestapiGolang::getInstance()->getStreamData($data);
         return $nids;
     }
-*/
+
 
     /**
      * @desc
